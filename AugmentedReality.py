@@ -3,6 +3,12 @@ import cv2.aruco as aruco
 import numpy as np
 import os
 
+juxtapose_img_filename1 = "blossom_ppg.png"
+juxtapose_img_filename2 = "bubbles_ppg.jpg"
+juxtapose_img_filename3 = "buttercup_ppg.jpg"
+# juxtapose_img_path = os.getcwd() + "\\" + juxtapose_img_filename
+is_camera_on = True
+
 def findArucoMarkers(img, markerSize = 6, totalMarkers = 250, draw = True):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     key = getattr(aruco, f'DICT_{markerSize}X{markerSize}_{totalMarkers}')
@@ -28,19 +34,27 @@ def arucoAug(bbox, id, img, imgAug, drawId = True):
     imgout = img + imgout
     return imgout
 
+if is_camera_on:
+    capture = cv2.VideoCapture(0)
+imgAug1 = cv2.imread(os.getcwd() + "\\" + juxtapose_img_filename1)
+imgAug2 = cv2.imread(os.getcwd() + "\\" + juxtapose_img_filename2)
+imgAug3 = cv2.imread(os.getcwd() + "\\" + juxtapose_img_filename3)
 
-capture = cv2.VideoCapture(0)
-imgAug = cv2.imread(r"C:\Users\ViSi162\PycharmProjects\pythonProject\mystery_box.jpg")
 while(True):
-    success, img = capture.read()
+    if is_camera_on:
+        success, img = capture.read()
+    else:
+        img = cv2.imread(os.getcwd() + "\\wallpaper.jpg")
     arucofound = findArucoMarkers(img)
     if len(arucofound[0]) !=0:
-        for bbox, id in zip(arucofound[0], arucofound[1]):
+        for bbox, id, imgAug in zip(arucofound[0], arucofound[1], [imgAug1, imgAug2, imgAug3]):
             img = arucoAug(bbox, id, img, imgAug)
         pass
     cv2.imshow('img', img)
     k = cv2.waitKey(30) & 0xff
     if k == 27:
         break
-capture.release()
+
+if is_camera_on:
+    capture.release()
 cv2.destroyAllWindows()
